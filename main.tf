@@ -1,28 +1,24 @@
 module "m1" {
-  for_each = local.environments
-  source   = "./m"
-  name     = module.m2[each.key].name
+  source = "./m"
+  name   = module.m2.name
 }
 
 
 module "m2" {
-  for_each = local.environments
-  source   = "./m"
-  name     = aws_secretsmanager_secret_version.connection_details[each.key].arn
+  source = "./m"
+  name   = aws_secretsmanager_secret_version.connection_details.arn
 }
 
 
 resource "aws_secretsmanager_secret" "connection_details" {
-  for_each = local.environments
-  name     = "superset-co"
+  name = "superset-co"
 }
 
 resource "aws_secretsmanager_secret_version" "connection_details" {
-  for_each  = local.environments
-  secret_id = aws_secretsmanager_secret.connection_details[each.key].id
+  secret_id = aws_secretsmanager_secret.connection_details.id
   secret_string = jsonencode(
     {
-      MODULE_NAME = module.m1[*].name
+      MODULE_NAME = module.m1.name
     }
   )
 }
